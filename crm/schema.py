@@ -5,27 +5,42 @@ from django.utils import timezone
 
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
+
+from .models import Customer, Product, Order
+from .filters import CustomerFilter, ProductFilter, OrderFilter
+
+import graphene
+from graphene_django import DjangoObjectType
 
 from .models import Customer, Product, Order
 
 
 # ========== GraphQL Types ==========
+# ---------------- Types ----------------
 class CustomerType(DjangoObjectType):
     class Meta:
         model = Customer
-        fields = ("id", "name", "email", "phone")
+        fields = ("id", "name", "email", "phone", "created_at")
+        filterset_class = CustomerFilter
+        interfaces = (graphene.relay.Node,)
 
 
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
         fields = ("id", "name", "price", "stock")
+        filterset_class = ProductFilter
+        interfaces = (graphene.relay.Node,)
 
 
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
         fields = ("id", "customer", "products", "total_amount", "order_date")
+        filterset_class = OrderFilter
+        interfaces = (graphene.relay.Node,)
+
 
 
 # ========== Inputs ==========
@@ -255,3 +270,32 @@ class Mutation(graphene.ObjectType):
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field()
+
+
+
+
+
+
+# ---------------- Query ----------------
+class Query(graphene.ObjectType):
+    all_customers = DjangoFilterConnectionField(CustomerType, order_by=graphene.List(of_type=graphene.String))
+    all_products = DjangoFilterConnectionField(ProductType, order_by=graphene.List(of_type=graphene.String))
+    all_orders = DjangoFilterConnectionField(OrderType, order_by=graphene.List(of_type=graphene.String))
+
+    def resolve_all_customers(self, info, order_by=None, **kwargs):
+        qs = Customer.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
+    def resolve_all_products(self, info, order_by=None, **kwargs):
+        qs = Product.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
+    def resolve_all_orders(self, info, order_by=None, **kwargs):
+        qs = Order.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
