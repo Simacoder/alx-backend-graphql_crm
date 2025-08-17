@@ -1,51 +1,36 @@
-import os
 import django
-from decimal import Decimal
-from django.utils import timezone
+import os
 
-# Setup Django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "alx_backend_graphql_crm.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "alx_backend_graphql.settings")
 django.setup()
 
 from crm.models import Customer, Product, Order
 
 
-def run():
-    Order.objects.all().delete()
-    Product.objects.all().delete()
+def seed():
     Customer.objects.all().delete()
+    Product.objects.all().delete()
+    Order.objects.all().delete()
 
-    customers = [
-        Customer(name="Alice Johnson", email="alice@example.com", phone="+233541234567"),
-        Customer(name="Bob Smith", email="bob@example.com", phone="+233542345678"),
-        Customer(name="Charlie Brown", email="charlie@example.com", phone="+233543456789"),
-    ]
-    Customer.objects.bulk_create(customers)
+    # Customers
+    alice = Customer.objects.create(name="Alice", email="alice@example.com", phone="+1234567890")
+    bob = Customer.objects.create(name="Bob", email="bob@example.com", phone="123-456-7890")
 
-    # Create Products
-    products = [
-        Product(name="Laptop", price=Decimal("999.99"), stock=10),
-        Product(name="Smartphone", price=Decimal("499.99"), stock=25),
-        Product(name="Headphones", price=Decimal("79.99"), stock=50),
-    ]
-    Product.objects.bulk_create(products)
+    # Products
+    laptop = Product.objects.create(name="Laptop", price=999.99, stock=10)
+    phone = Product.objects.create(name="Phone", price=499.99, stock=5)
 
-    # Create Orders
-    alice = Customer.objects.get(email="alice@example.com")
-    laptop = Product.objects.get(name="Laptop")
-    phone = Product.objects.get(name="Smartphone")
-
-    order1 = Order.objects.create(
-        customer=alice,
-        total_amount=Decimal("0.00"),
-        order_date=timezone.now()
-    )
+    # Orders
+    order1 = Order.objects.create(customer=alice)
     order1.products.set([laptop, phone])
-    order1.total_amount = sum([p.price for p in order1.products.all()])
-    order1.save()
+    order1.calculate_total()
 
-    print("Database seeded successfully!")
+    order2 = Order.objects.create(customer=bob)
+    order2.products.set([phone])
+    order2.calculate_total()
+
+    print(" Database seeded successfully!")
 
 
 if __name__ == "__main__":
-    run()
+    seed()
