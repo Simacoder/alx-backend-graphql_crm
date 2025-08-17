@@ -2,7 +2,8 @@ import os
 import django
 from decimal import Decimal
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "alx_backend_graphql_crm.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "alx_backend_graphql.settings")
+
 django.setup()
 
 from crm.models import Customer, Product, Order  # noqa
