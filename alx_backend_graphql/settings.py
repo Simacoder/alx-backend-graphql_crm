@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'alx_backend_graphql.schema.schema'
+    'SCHEMA': 'alx_backend_graphql_crm.schema.schema'
 }
 
 MIDDLEWARE = [
@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'alx_backend_graphql.urls'
+ROOT_URLCONF = 'alx_backend_graphql_crm.urls'
 
 TEMPLATES = [
     {
